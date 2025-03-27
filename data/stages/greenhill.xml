@@ -1,0 +1,40 @@
+<!DOCTYPE codename-engine-stage>
+<stage folder="stages/bg-greenhill/" name="greenhill" zoom="0.7">
+	<sprite x="-366" scrolly="0" sprite="Sky" y="-600" scale="2" name="Sky" scrollx="0"/>
+	<sprite x="-488" scrolly="0.05" sprite="Clouds" y="-335" scale="2" name="Clouds" scrollx="0.05"/>
+	<sprite scrolly="0.1" x="-109.45" y="-142.25" sprite="Moutians" scale="1.75" scrollx="0.1" name="Moutians"/>
+	<sprite scrolly="0.2" x="128.1" y="235.5" sprite="Water" scale="2" scrollx="0.2" name="Water"/>
+	<sprite x="-1048" y="-200" sprite="Ground" scale="1.75" name="Land"/>
+	<sprite x="-1285.5" sprite="rings" y="4.5" scale="0.88" name="Rings">
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<anim x="0" loop="true" y="0" fps="12" anim="idle ring" type="beat" name="idle ring"/>
+		
+		
+		
+		
+		
+		
+	
+	
+	
+	
+	
+	
+	</sprite>
+	<girlfriend x="100000" y="130"/>
+	<dad x="-637" y="-208"/>
+	<boyfriend x="25" y="-208"/>
+	<sprite scrolly="1.25" x="-969.375" y="-27.625" sprite="Foreground" scale="2.5" scrollx="1.25" name="Rocks"/>
+	<combo x="-169" y="60.5"/>
+</stage>

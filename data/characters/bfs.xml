@@ -1,0 +1,44 @@
+<!DOCTYPE codename-engine-character>
+<character x="5" icon="bfs" camx="110" y="330" camy="60" color="#30B0D1" isPlayer="true" flipX="true" sprite="bfs">
+	<anim loop="false" x="1" fps="24" y="136" anim="BF HEY" name="hey"/>
+
+	<anim loop="false" x="-14" fps="24" y="5" anim="BF NOTE LEFT0" indices="0..14" name="singLEFT"/>
+
+	<anim loop="false" x="-22" fps="24" y="-52" anim="BF NOTE DOWN0" indices="0..14" name="singDOWN"/>
+
+	<anim loop="false" x="-47" fps="24" y="41" anim="BF NOTE UP0" indices="0..14" name="singUP"/>
+
+	<anim loop="false" x="-43" fps="24" y="-1" anim="BF NOTE RIGHT0" indices="0..14" name="singRIGHT"/>
+
+	<anim loop="false" x="-13" fps="24" y="63" anim="BF NOTE LEFT MISS" indices="0..14" name="singLEFTmiss-alt"/>
+
+	<anim loop="false" x="-13" fps="24" y="63" anim="BF NOTE LEFT MISS" indices="0..14" name="singLEFTmiss"/>
+
+	<anim loop="false" x="-26" fps="24" y="-2" anim="BF NOTE DOWN MISS" indices="0..14" name="singDOWNmiss-alt"/>
+
+	<anim loop="false" x="-26" fps="24" y="-2" anim="BF NOTE DOWN MISS" indices="0..14" name="singDOWNmiss"/>
+
+	<anim loop="false" x="-37" fps="24" y="65" anim="BF NOTE UP MISS" indices="0..14" name="singUPmiss-alt"/>
+
+	<anim loop="false" x="-37" fps="24" y="65" anim="BF NOTE UP MISS" indices="0..14" name="singUPmiss"/>
+
+	<anim loop="false" x="-40" fps="24" y="43" anim="BF NOTE RIGHT MISS" indices="0..14" name="singRIGHTmiss-alt"/>
+
+	<anim loop="false" x="-40" fps="24" y="43" anim="BF NOTE RIGHT MISS" indices="0..14" name="singRIGHTmiss"/>
+
+	<anim loop="false" x="-5" fps="24" y="0" anim="BF idle dance" indices="0..14" name="idle"/>
+
+	<anim loop="false" x="-17" fps="24" y="0" anim="BF idle dance ALT" indices="0..14" name="idle-alt"/>
+
+	<anim loop="false" x="14" fps="24" y="1" anim="BF NOTE LEFT ALT" indices="0..14" name="singLEFT-alt"/>
+
+	<anim loop="false" x="-20" fps="24" y="-55" anim="BF NOTE DOWN ALT" indices="0..14" name="singDOWN-alt"/>
+
+	<anim loop="false" x="-52" fps="24" y="52" anim="BF NOTE UP ALT" indices="0..14" name="singUP-alt"/>
+
+	<anim loop="false" x="-47" fps="24" y="0" anim="BF NOTE RIGHT ALT" indices="0..14" name="singRIGHT-alt"/>
+
+	<anim loop="false" x="22" fps="24" y="13" anim="BF hit" name="hurt"/>
+
+	<anim loop="false" x="-22" fps="24" y="8" anim="BF dies irl" name="ow"/>
+</character>

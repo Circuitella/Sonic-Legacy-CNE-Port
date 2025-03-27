@@ -1,0 +1,10 @@
+<!DOCTYPE codename-engine-character>
+<character x="50" y="220" sprite="adventuresonic" icon="sonic" color="#051EB2" holdTime="6.1">
+	<anim name="singLEFT" anim="LEFT" x="134" y="-49" fps="24" loop="false"/>
+	<anim name="singDOWN" anim="DOWN" x="22" y="-40" fps="24" loop="false"/>
+	<anim name="singUP" anim="UP" x="-26" y="44" fps="24" loop="false"/>
+	<anim name="singRIGHT" anim="RIGHT" x="-28" y="25" fps="24" loop="false"/>
+	<anim name="idle" anim="IDLE0" x="0" y="0" fps="24" loop="false"/>
+	<anim name="idle-alt" anim="IDLE-ALT" x="0" y="0" fps="24" loop="true" indices="1..13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13,12,13"/>
+	<anim name="idle-alt-evil" anim="IDLE-ALT" x="0" y="0" fps="24" loop="true" indices="12,13"/>
+</character>

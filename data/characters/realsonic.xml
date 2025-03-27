@@ -1,0 +1,9 @@
+<!DOCTYPE codename-engine-character>
+<character sprite="realsonic" camx="-90" camy="230" icon="sonic" color="#051EB2">
+	<anim name="idle" anim="IDLE" x="0" y="-180" fps="24" loop="false"/>
+	<anim name="singLEFT" anim="LEFT" x="28" y="-193" fps="24" loop="false"/>
+	<anim name="singRIGHT" anim="RIGHT" x="-57" y="-169" fps="24" loop="false"/>
+	<anim name="singDOWN" anim="DOWN" x="-19" y="-248" fps="24" loop="false"/>
+	<anim name="singUP" anim="UP" x="-47" y="-142" fps="24" loop="false"/>
+	<anim name="spin" anim="spindash" x="762" y="-181" fps="24" loop="false" indices="1..37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37"/>
+</character>
