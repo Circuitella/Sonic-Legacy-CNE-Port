@@ -423,6 +423,14 @@
 		},
 		{
 			"params": [
+				"setZoomGame",
+				"0.65"
+			],
+			"name": "HScript Call",
+			"time": 102858.587358994
+		},
+		{
+			"params": [
 				1
 			],
 			"name": "Camera Movement",
@@ -449,6 +457,14 @@
 			],
 			"time": 121127.688766929,
 			"name": "Camera Movement"
+		},
+		{
+			"params": [
+				"setZoomGame",
+				"0.65"
+			],
+			"name": "HScript Call",
+			"time": 121127.688766929
 		},
 		{
 			"params": [
@@ -534,10 +550,25 @@
 		},
 		{
 			"params": [
+				"setZoomGame",
+				"0.65"
+			],
+			"name": "HScript Call",
+			"time": 133279.587501106
+		},
+		{
+			"params": [
 				1
 			],
 			"name": "Camera Movement",
 			"time": 133374.524209967
+		},
+		{
+			"params": [
+				0
+			],
+			"name": "Camera Movement",
+			"time": 137741.612817562
 		},
 		{
 			"params": [

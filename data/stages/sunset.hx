@@ -197,6 +197,10 @@ function lookRight(){
     FlxTween.tween(spr, {alpha: 1},1.2);
 }
 function begin(){
+    var x = dad.getMidpoint().x + 150;
+    var y = dad.getMidpoint().y - 100;
+
+    FlxTween.tween(camFollow, {x: x,y: y},1.3, {ease: FlxEase.sineInOut});
     FlxTween.tween(camGame, {zoom: 0.65},1.3, {ease: FlxEase.sineInOut});
                 
     camHUD.zoom = 1.2;
@@ -243,8 +247,8 @@ function phase3Vis(){
     insert(99, dad);
 
 }
-function setZoomGame(zoom:Int, time:Int){
-    FlxTween.tween(camGame, {zoom: zoom},time, {ease: FlxEase.sineInOut});
+function setZoomGame(zoom:Int){
+    defaultCamZoom = zoom;
 }
 function camGameZoomLerp(lerp:Float){
     camGameZoomLerp = lerp;
