@@ -3,6 +3,19 @@ import flixel.FlxCamera;
 import hxvlc.openfl.Video;
 import hxvlc.flixel.FlxVideo;
 import hxvlc.flixel.FlxVideoSprite;
+import funkin.backend.utils.WindowUtils;
+import lime.graphics.Image;
+import flixel.ui.FlxBar;
+import flixel.math.FlxRect;
+import flixel.text.FlxTextAlign;
+import flixel.text.FlxTextBorderStyle;
+import openfl.display.BlendMode;
+import flixel.ui.FlxBarFillDirection;
+import flixel.util.FlxColor;
+import flixel.math.FlxPoint;
+import flixel.graphics.frames.FlxBitmapFont;
+import flixel.text.FlxBitmapText;
+import flixel.ui.FlxBar;
 
 var phase:Int = 1;
 var songNameThing = PlayState.SONG.meta.displayName;
@@ -11,34 +24,98 @@ var fakerBG:Array<FlxSprite> = [];
 var scaryBG:Array<FlxSprite> = [];
 var thirdBG:Array<FlxSprite> = [];
 
+//UI
+var healthBarOverlay:FlxSprite;
+var healthBarStitch:FlxSprite; 
+var scoreNum:FlxBitmapText;
+var cmboNum:FlxBitmapText;
+var accNum:FlxBitmapText;
+var cmboBreaks:FlxSprite;
+var sscore:FlxSprite;
+var acc:FlxSprite;
 
+//Videos
 var video:FlxVideoSprite;
 var cutscene:FlxVideoSprite;
 var p3Video:FlxVideoSprite;
 
+//Bullying BF
 var kickingAnim:FlxSprite;
 var rabbitHead:FlxSprite;
 
+//Onscreen Text
 var playText:Alphabet;
 var boring:FlxSprite;
 var boringAlphaBet:Alphabet;
 var boringAlphaBet2:Alphabet;
 
-
+//Ending
 var black:FlxSprite;
 var braindeadBF:FlxSprite;
 var monitor:FlxSprite;
 var blackBars:Array<FlxSprite> = [];
-var _static:FlxSprite;
+var scarystatic:FlxSprite;
 
-var heatShader:FlxRuntimeShader;
+//var heatShader:FlxRuntimeShader;
 
 var introAnim:FlxSprite;
 var camOther = new FlxCamera();
 
 function onCountdown(event) event.cancel(); //skip countdown
 
+function createUI() 
+    {
+        healthBarOverlay = new FlxSprite().loadGraphic(Paths.image('hpBar'));
+        healthBarOverlay.screenCenter(FlxAxes.X);
+        
+        healthBarOverlay.y += camHUD.downscroll ? -10 : 630;
+        healthBarOverlay.flipY = camHUD.downscroll;
+
+        /*healthBar.createFilledBar(FlxColor.fromRGB(71, 63, 75), FlxColor.fromRGB(255, 242, 0));
+        healthBar.updateFilledBar();
+		healthBar.updateBar();*/
+
+        healthBarStitch = new FlxSprite().loadGraphic(Paths.image('stitchMiddle'));
+        healthBarStitch.y = healthBarOverlay.y + 15;
+        //healthBarStitch.camera = camHUD;
+        //add(healthBarStitch);
+
+        final scoreY:Float = (camHUD.downscroll ? 100 : camHUD.height * 0.91);
+        scoreTxt = new FlxText(0, scoreY + 36, FlxG.width, "", 20);
+		//scoreTxt.setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, FlxTextAlign.CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		//scoreTxt.borderSize = 1.25;
+        healthBarOverlay.camera = healthBarStitch.camera = camHUD;
+
+        healthBarOverlay.alpha = healthBarStitch.alpha = 1;
+        add(healthBarOverlay);
+        add(healthBarStitch);
+
+
+    }
+    
+    function sort()
+    {
+        var dumpExclusions = [current.botplayTxt,current.timeTxt,current.timeBitmapTxt,current.timeBarBG,current.timeBar];
+        for (i in uiGroup) if (!dumpExclusions.contains(i)) remove(i);
+        
+        for (i in [healthBar,healthBarStitch,healthBarOverlay,iconP1,iconP2,scoreTxt]) add(i);
+
+
+        current.timeBitmapTxt.visible = false;
+        current.timeTxt.visible = !current.timeBitmapTxt.visible;
+    }
+
+    function onUpdateScore() {
+        scoreTxt.text = 'Score: ' + songScore + ' | Combo Breaks: ' + songMisses + ' | Accuracy: ' + ratingName;
+        if(ratingName != '?')
+            scoreTxt.text += ' (' + Highscore.floorDecimal(ratingPercent * 100, 2) + '%)' + ' - ' + ratingFC;	
+    }
+
+
 function create(){
+    FlxTween.tween(camGame, {zoom: 1.3},0.5, {ease: FlxEase.sineInOut});
+
+    camGame.zoom = 1.3;
     camOther.zoom = camHUD.zoom;
     camOther.x = camHUD.x;
     camOther.y = camHUD.y;
@@ -50,6 +127,7 @@ function create(){
     addPhase1();
     addPhase2();
     addPhase3();
+    createUI();
 
     for(i in scaryBG) i.visible = false;
 
@@ -119,6 +197,7 @@ function create(){
     fuckassOverlay.screenCenter();
     fuckassOverlay.visible = false;
     fuckassOverlay.alpha = 0.7;
+    fuckassOverlay.blend = BlendMode.ADD;
     add(fuckassOverlay);
     fuckassOverlay.cameras = [camOther];
 
@@ -143,37 +222,60 @@ function create(){
     monitor.visible = false;
     for (i in blackBars) i.visible = false;
 
-    _static = new FlxSprite();
-    _static.frames = Paths.getSparrowAtlas('static');
-    _static.animation.addByPrefix('idle', 'static idle', 24, true);
-    _static.animation.play('idle');
-    _static.screenCenter();
-    _static.camera = camOther;
-    _static.visible = false;
-    add(_static);
+    scarystatic = new FlxSprite();
+    scarystatic.frames = Paths.getSparrowAtlas('static');
+    scarystatic.animation.addByPrefix('idle', 'static idle', 24, true);
+    scarystatic.animation.play('idle');
+    scarystatic.screenCenter();
+    scarystatic.camera = camOther;
+    scarystatic.visible = false;
+    add(scarystatic);
     camGame.alpha = 0;
     camHUD.alpha = 0;
+
+
 }
 
 
 
 function onSongStart(){
-    FlxTween.tween(camGame, {zoom: 1.5},0.01, {ease: FlxEase.sineInOut});
+    remove(iconP1, true);
+    remove(iconP2, true);
+    remove(healthBar, true);
+    remove(healthBarBG, true);
+    remove(healthBarOverlay, true);
+    remove(healthBarStitch, true);
+    remove(accuracyTxt, true);
+    remove(missesTxt, true);
+    remove(scoreTxt, true);
+    scoreTxt.y = scoreTxt.y + 20;
+    missesTxt.y = scoreTxt.y;
+    accuracyTxt.y = scoreTxt.y;
 
+    insert(4, healthBar);
+    healthBar.scale.set(1,1.9);
+    healthBar.y = healthBar.y;
+    insert(6, healthBarOverlay);
+    insert(5, healthBarStitch);
+    insert(99, iconP1);
+    insert(99, iconP2);
     remove(boyfriend, true);
     insert(99, boyfriend);
     remove(dad, true);
     insert(99, dad);
+    insert(100, scoreTxt);
+    insert(100, missesTxt);
+    insert(100, accuracyTxt);
 
     PlayState.SONG.meta.displayName = 'Free 4 Me';
-
+    //exeUI();
     var spr = fakerBG[fakerBG.length-1];
     remove(spr, true);
     insert(101, spr);
     FlxTween.tween(spr, {alpha: 0.3},1.2);
     camHUD.alpha = 0;
     var x = 260;
-    var y = 660;
+    var y = 620;
     camFollow.setPosition(x,y);
     camzoom = 1.25;
     dad.visible = false;
@@ -211,6 +313,10 @@ function phase2Vis(){
     for (i in fakerBG) i.visible = false;
     for (i in scaryBG) i.visible = true;
     PlayState.SONG.meta.displayName = 'Obituary';
+    var windowName = "Sonic Legacy";
+    WindowUtils.winTitle = windowName;
+    window.setIcon(Image.fromBytes(Assets.getBytes(Paths.image('iconEXE'))));
+    FlxG.save.data.legacyReveal = true;
 
     remove(boyfriend, true);
     insert(99, boyfriend);
@@ -246,7 +352,31 @@ function phase3Vis(){
     remove(dad, true);
     insert(99, dad);
 
+    for (e in strumLines.members[0]) {
+        e.alpha = 0;
+      }
 }
+
+function onPostStrumCreation(event:StrumCreationEvent){
+    if(phase == 3){
+    for (i in [0]) {
+        for(babyArrow in strumLines.members[i]){
+            babyArrow.alpha = 0;
+        }
+    }
+    }
+}
+
+function update(){
+    healthBarStitch.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01)) - 7;
+
+    if(phase == 3){
+    for (e in strumLines.members[0]) {
+        e.alpha = 0;
+  }
+}
+}
+
 function setZoomGame(zoom:Int){
     defaultCamZoom = zoom;
 }
@@ -276,7 +406,7 @@ function addPhase1() {
     }
     add(introAnim);
 
-    addObject1('frontobjects','bgFiles',1,[1.25,1.25],'x',[210 + 150,400],true,1,12);
+    addObject1('frontobjects','bgFiles',1,[1.25,1.25],'x',[330,100],true,1,12);
 }
 
 function addPhase2() {
@@ -498,8 +628,41 @@ function letsPlay(value2:String){
     playText.visible = val;
     if (!val) {
         fadeIn();
-        //ExeUI();
+        exeUI();
         }
+}
+
+function exeUI(){
+    healthBarOverlay.loadGraphic(Paths.image('ui/hpBar-exe'));
+    healthBarStitch.loadGraphic(Paths.image('ui/stitchMiddleEXE'));
+    healthBar.y = healthBar.y + 12;
+
+    scoreTxt.y = scoreTxt.y + 5;
+    missesTxt.y = scoreTxt.y;
+    accuracyTxt.y = scoreTxt.y;
+    remove(iconP1, true);
+    remove(iconP2, true);
+    insert(99, iconP2);
+    insert(99, iconP1);
+
+    /*sscore = new FlxSprite();
+    sscore.loadImage('ui/score');
+    sscore.camera = camHUD;
+    add(sscore);
+    cmboBreaks = new FlxSprite().loadImage('ui/cmbo');
+    acc = new FlxSprite().loadImage('ui/acc');
+    
+    cmboNum = new FlxBitmapText(FlxBitmapFont.fromMonospace(Paths.image('ui/nums'),'0123456789:',numSpacing));
+    cmboNum.text = '01';
+
+    scoreNum = new FlxBitmapText(FlxBitmapFont.fromMonospace(Paths.image('ui/nums'),'0123456789:',numSpacing));
+    scoreNum.text = '01';
+
+    accNum = new FlxBitmapText(FlxBitmapFont.fromMonospace(Paths.image('ui/ratings'),'xsabcde:',new FlxPoint(18,19)));
+    accNum.text = 'x';
+
+    for (i in [cmboBreaks,cmboNum,score,scoreNum,acc,accNum]) {i.setScale(2); i.y = scoreY + 25;}
+    accNum.centerOnSprite(acc,Y);*/
 }
 
 function fadeIn(){
@@ -560,13 +723,13 @@ function imHungry(){
 function toBlack(){
     black.visible = true;
     black.alpha = 1;
-    _static();
+    scarystatic();
 }
-function _static(){
-    _static.visible = true;
-    _static.alpha = FlxG.random.float(0.125, 1.0);
+function scarystatic(){
+    scarystatic.visible = true;
+    scarystatic.alpha = FlxG.random.float(0.125, 1.0);
     new FlxTimer().start(0.25, function(shit:Float){
-        _static.visible = false;
+        scarystatic.visible = false;
     });
 }
 
