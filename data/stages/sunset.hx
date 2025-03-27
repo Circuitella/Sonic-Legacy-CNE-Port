@@ -36,9 +36,13 @@ var heatShader:FlxRuntimeShader;
 var introAnim:FlxSprite;
 var camOther = new FlxCamera();
 
+function onCountdown(event) event.cancel(); //skip countdown
+
 function create(){
-
-
+    camOther.zoom = camHUD.zoom;
+    camOther.x = camHUD.x;
+    camOther.y = camHUD.y;
+    camGame.zoom = 1.5;
 	FlxG.cameras.add(camOther, false);
     camOther.bgColor = 0;
     camOther.alpha = 1;
@@ -147,14 +151,15 @@ function create(){
     _static.camera = camOther;
     _static.visible = false;
     add(_static);
-    
+    camGame.alpha = 0;
+    camHUD.alpha = 0;
 }
 
-function onStartCountdown(event){
-    //event.cancel();
-}
+
 
 function onSongStart(){
+    FlxTween.tween(camGame, {zoom: 1.5},0.01, {ease: FlxEase.sineInOut});
+
     remove(boyfriend, true);
     insert(99, boyfriend);
     remove(dad, true);
@@ -168,12 +173,13 @@ function onSongStart(){
     FlxTween.tween(spr, {alpha: 0.3},1.2);
     camHUD.alpha = 0;
     var x = 260;
-    var y = -350;
-    FlxG.camera.scroll.x = x;
-    FlxG.camera.scroll.y = y;
+    var y = 660;
+    camFollow.setPosition(x,y);
     camzoom = 1.25;
     dad.visible = false;
     introAnim.animation.play('intro', false);
+    camGame.alpha = 1;
+
 }
 
  function generateGraphic(sprite:FlxSprite, width:Float,height:Float,color:FlxColor = FlxColor.WHITE):FlxSprite
