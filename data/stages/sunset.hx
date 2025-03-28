@@ -16,7 +16,10 @@ import flixel.math.FlxPoint;
 import flixel.graphics.frames.FlxBitmapFont;
 import flixel.text.FlxBitmapText;
 import flixel.ui.FlxBar;
-
+//vid imports
+import hxvlc.openfl.Video;
+import hxvlc.flixel.FlxVideo;
+import hxvlc.flixel.FlxVideoSprite;
 //vars for keeping track of song progress
 var phase:Int = 1;
 var songNameThing = PlayState.SONG.meta.displayName;
@@ -26,6 +29,9 @@ var scaryBG:Array<FlxSprite> = [];
 var thirdBG:Array<FlxSprite> = [];
 //That blue faker
 var introAnim:FlxSprite;
+//lyric vars
+var subTimer:FlxTimer;
+var subtitleText:FlxText = new FlxText();
 //UI
 var healthBarOverlay:FlxSprite;
 var healthBarStitch:FlxSprite; 
@@ -97,34 +103,65 @@ function createUI()
 
 
     }
-    
-    function sort()
-    {
-        var dumpExclusions = [current.botplayTxt,current.timeTxt,current.timeBitmapTxt,current.timeBarBG,current.timeBar];
-        for (i in uiGroup) if (!dumpExclusions.contains(i)) remove(i);
-        
-        for (i in [healthBar,healthBarStitch,healthBarOverlay,iconP1,iconP2,scoreTxt]) add(i);
+function cutsceneLore(){
+    camZooming = false;
+    var spr = fakerBG[fakerBG.length-1];
+    var time = 0.4;
+    var delay = 0.2;
+    //og y 616;
+    FlxTween.tween(spr, {alpha: 0.3},time, {ease: FlxEase.quadIn, startDelay: delay});
+    FlxTween.tween(camFollow, {x: 350, y: 580},time, {ease: FlxEase.quadIn, startDelay: delay});
+    FlxTween.tween(camGame, {zoom: 1.5},time, {ease: FlxEase.quadIn, startDelay: delay, onComplete: function (f:FlxTween) {
+        spr.alpha = 1;
+        cutscene.alpha = 1;
+        cutscene.play();
+        camOther.flash(0xFFFFFFFF, 0.5);
+        camHUD.zoom = 1.05;
+        FlxTween.tween(camHUD,{zoom: 1},0.4, {ease: FlxEase.quadOut});
+    }});
+}
+function doesZoom(bop:Bool){
+    camZooming = bop;
+}
+function cutsceneDone(){
+    camZooming = true;
+    //imHungry();
+    cutscene.destroy();
+}
 
 
-        current.timeBitmapTxt.visible = false;
-        current.timeTxt.visible = !current.timeBitmapTxt.visible;
-    }
 
-    function onUpdateScore() {
-        scoreTxt.text = 'Score: ' + songScore + ' | Combo Breaks: ' + songMisses + ' | Accuracy: ' + ratingName;
-        if(ratingName != '?')
-            scoreTxt.text += ' (' + Highscore.floorDecimal(ratingPercent * 100, 2) + '%)' + ' - ' + ratingFC;	
-    }
-
+function generateSubs(text:String,length:Float) { //timer is stupid >:( It No Work
+    subtitleText.visible = true;
+    subtitleText.text = text;
+    subtitleText.updateHitbox();
+    subtitleText.y = FlxG.height - subtitleText.height + -150;
+}
 
 function create(){
+    subtitleText = new FlxText(0,0,FlxG.width,'',32);
+    subtitleText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, FlxTextAlign.CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+    add(subtitleText);
+    subtitleText.cameras = [camOther];
+    subtitleText.visible = false;
+    //subtitleText.borderSize = 1.5;
 
+    //player.cpu = true;
     heatShader = new CustomShader("heatShader");
     crtShader = new CustomShader("CRT");
 
+    //videos
+    cutscene = new FlxVideoSprite();
+	cutscene.load(Assets.getPath(Paths.video('cutscene-1')));
+    cutscene.camera = camHUD;
+    //cutscene.video.video.onEndReached(cutsceneDone());
 
+    add(cutscene);
+    //cutscene.play();
+    remove(cutscene, true);
+    insert(0, cutscene);
+    //this tween is to ensure it since it takes more then 1 frame to zoom in
     FlxTween.tween(camGame, {zoom: 1.3},0.5, {ease: FlxEase.sineInOut});
-
     camGame.zoom = 1.3;
     camOther.zoom = camHUD.zoom;
     camOther.x = camHUD.x;
@@ -241,11 +278,14 @@ function create(){
     scarystatic.visible = false;
     add(scarystatic);
     camGame.alpha = 0;
-    camHUD.alpha = 0;
+    camHUD.alpha = 1;
 
 
 }
 
+function onSubstateOpen() if (cutscene != null) cutscene.pause();
+function onSubstateClose() if (cutscene != null) cutscene.resume();
+function onFocus() if (paused) onSubstateOpen(); // lil fix for when the window regains focus
 
 
 function onSongStart(){
@@ -383,9 +423,12 @@ function update(elapsed:Float){
     healthBarStitch.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01)) - 7;
 
     if(phase == 3){
+        for (note in cpu.notes) note.alpha = 0;
+
     for (e in strumLines.members[0]) {
         e.alpha = 0;
   }
+  
 }
   if(evil){
   itime+=elapsed;
@@ -719,10 +762,10 @@ function Kend(){
 }
 
 function imHungry(){
-    camZooming = false;
+    camZooming = true;
 
-    FlxG.camera.zoom = 0.65;
-    defaultCamZoom = 0.65;
+    //FlxG.camera.zoom = 0.65;
+    //defaultCamZoom = 0.65;
     if(introAnim.visible) introAnim.visible = false;
     if (!dad.visible) dad.visible = true; //just cause i skip time alot
     new FlxTimer().start(0.1, Void -> {
@@ -731,7 +774,7 @@ function imHungry(){
             i.alpha = 1;
             FlxTween.color(i, 0.75, 0xFFFFFFFF, 0xFF464646, {ease: FlxEase.quadInOut});
         }
-        FlxG.camera.zoom = 0.8;
+        defaultCamZoom = 0.8;
 
     });
 }
