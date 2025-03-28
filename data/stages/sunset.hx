@@ -17,13 +17,15 @@ import flixel.graphics.frames.FlxBitmapFont;
 import flixel.text.FlxBitmapText;
 import flixel.ui.FlxBar;
 
+//vars for keeping track of song progress
 var phase:Int = 1;
 var songNameThing = PlayState.SONG.meta.displayName;
-
+//groups for each phase
 var fakerBG:Array<FlxSprite> = [];
 var scaryBG:Array<FlxSprite> = [];
 var thirdBG:Array<FlxSprite> = [];
-
+//That blue faker
+var introAnim:FlxSprite;
 //UI
 var healthBarOverlay:FlxSprite;
 var healthBarStitch:FlxSprite; 
@@ -56,9 +58,12 @@ var monitor:FlxSprite;
 var blackBars:Array<FlxSprite> = [];
 var scarystatic:FlxSprite;
 
-//var heatShader:FlxRuntimeShader;
+//shaders
+var itime:Float = 0;
+var heatShader:CustomShader;
+var crtShader:CustomShader;
 
-var introAnim:FlxSprite;
+//camOther is made in this song since CNE Doesnt Have One By Default
 var camOther = new FlxCamera();
 
 function onCountdown(event) event.cancel(); //skip countdown
@@ -113,6 +118,11 @@ function createUI()
 
 
 function create(){
+
+    heatShader = new CustomShader("heatShader");
+    crtShader = new CustomShader("CRT");
+
+
     FlxTween.tween(camGame, {zoom: 1.3},0.5, {ease: FlxEase.sineInOut});
 
     camGame.zoom = 1.3;
@@ -341,6 +351,7 @@ function phase2Vis(){
     f.antialiasing = true;
 
 }
+var evil:Bool = false;
 function phase3Vis(){
     phase = 3;
 
@@ -351,7 +362,8 @@ function phase3Vis(){
     insert(99, boyfriend);
     remove(dad, true);
     insert(99, dad);
-
+    remove(iconP2);
+    insert(99, iconP2);
     for (e in strumLines.members[0]) {
         e.alpha = 0;
       }
@@ -367,7 +379,7 @@ function onPostStrumCreation(event:StrumCreationEvent){
     }
 }
 
-function update(){
+function update(elapsed:Float){
     healthBarStitch.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01)) - 7;
 
     if(phase == 3){
@@ -375,6 +387,10 @@ function update(){
         e.alpha = 0;
   }
 }
+  if(evil){
+  itime+=elapsed;
+  heatShader.iTime = itime;
+  }
 }
 
 function setZoomGame(zoom:Int){
@@ -751,134 +767,50 @@ function zoomOut(){
               FlxTween.tween(note, {alpha: 1}, 0.01);
             }
     }
-    //modManager.setValue('alpha',1,1); //opp note die
-    //modManager.setValue('opponentSwap',1);
 }
-/*            case 'prepkick':
-                var x = game.dad.getMidpoint().x + 150 + game.dad.cameraPosition[0] + game.opponentCameraOffset[0];
-                var y = game.dad.getMidpoint().y - 100 + game.dad.cameraPosition[1] + game.opponentCameraOffset[1];
-                y += 100;
-                x += 100;
-                game.isCameraOnForcedPos = true;
-
-                FlxTween.tween(game.camFollowPos, {x: x,y: y},0.2, {ease: FlxEase.sineInOut});
-            case 'endZoom':
-                game.camOther.zoom = 2.2;
+function evil(){
+    evil = true;
+    camHUD.flash(0xFFFF0000, 0.5);
+    camGame.addShader(heatShader);
+    fuckassOverlay.visible = true;
+}
+function endZoom(){
+                camOther.zoom = 2.2;
                 monitor.visible = true;
-
-                setTransInOut(true,true);
+                camGame.removeShader(heatShader);
+                camGame.addShader(crtShader);
 
                 for (i in blackBars) i.visible = true;
 
-                FlxTween.tween(game.camHUD, {alpha: 0},0.3, {ease: FlxEase.sineOut});
-                FlxTween.tween(game.camOther, {zoom: 1},1.25, {ease: FlxEase.sineOut});
+                FlxTween.tween(camHUD, {alpha: 0},0.3, {ease: FlxEase.sineOut});
+                FlxTween.tween(camOther, {zoom: 1},1.25, {ease: FlxEase.sineOut});
 
-                game.isCameraOnForcedPos = true;
-                game.camFollow.x = game.dad.getGraphicMidpoint().x + ((game.boyfriend.getGraphicMidpoint().x - game.dad.getGraphicMidpoint().x)/2);
-                game.zoomsPerBeat = 11111111;
-                FlxTween.cancelTweensOf(game.camGame);
-                FlxTween.tween(game.camGame, {zoom: 0.36},1.25, {ease: FlxEase.sineOut, onUpdate: function (f:FlxTween) {
-                    game.defaultCamZoom = game.camGame.zoom;
-                    trace(game.camGame.zoom);
+                camFollow.x = dad.getGraphicMidpoint().x + ((boyfriend.getGraphicMidpoint().x - dad.getGraphicMidpoint().x)/2);
+                camZoomingInterval = 11111111;
+                FlxTween.cancelTweensOf(camGame);
+                FlxTween.tween(camGame, {zoom: 0.36},1.25, {ease: FlxEase.sineOut, update: function (f:FlxTween) {
+                    defaultCamZoom = 0.36;
+                    camGame.zoom = 0.36;
+                    camZooming = false;
+                    trace(camGame.zoom);
                 }});
-                addShader(crtShader);
-
+                camZooming = false;
                 FlxTween.tween(fuckassOverlay, {alpha: 0},0.5, {ease: FlxEase.sineOut});
 
-                FlxTween.num(0, 5.0, 3.5, {ease: FlxEase.sineOut, onUpdate: function(v:FlxTween){
+                FlxTween.num(0, 5.0, 3.5, {ease: FlxEase.sineOut, update: function(v:FlxTween){
                     crtShader.data.warp.value = [v.value];
                 }});
+}
+function end(){
+    monitor.animation.play('off');
+    black.alpha = 1;
+    black.visible = true;
+    FlxTween.tween(braindeadBF, {alpha: 1},0.4, {startDelay: 0.4});
+    FlxTween.tween(braindeadBF, {alpha: 0},0.4, {startDelay: 5});
+}
 
-            case 'end':
-                monitor.animation.play('off');
-                black.alpha = 1;
-                black.visible = true;
-                FlxTween.tween(braindeadBF, {alpha: 1},0.4, {startDelay: 0.4});
-                FlxTween.tween(braindeadBF, {alpha: 0},0.4, {startDelay: 5});
-
-            case 'laugh':
-                switch (value2) {
-                    case 'kick':
-                        dad.visible = false;
-                        kickingAnim.visible = true;
-                        kickingAnim.animation.play('kick');
-                        FlxG.sound.play(Paths.sound('windUpKick'),0.75);
-                        rabbithead.animation.play('play');
-                        rabbithead.animation.finishCallback = function (n:String) {
-                            rabbithead.visible = false;
-                        }
-
-                    case 'laugh':
-                        kickingAnim.animation.play('laugh',true);
-                    case 'end':
-                        kickingAnim.animation.play('return');
-                        kickingAnim.animation.finishCallback = function (n:String) {
-                            kickingAnim.visible = false;
-                            dad.visible = true;
-                        }
-
-                }
-            case 'boring':
-                switch (value2) {
-            
-                    case 'look':
-                        dad.playAnim('gameover');
-                        dad.stunned = true;
-
-                    case 'boring':
-                        boring.visible = true;
-                        boringAlphabet.visible = true;
-                        boringAlphabet2.visible = true;
-                        black.visible = true;
-
-                    case 'end':
-                        boring.visible = false;
-                        boringAlphabet.visible = false;
-                        boringAlphabet2.visible = false;
-                        black.visible = false;
-                        dad.stunned = false;
-
-                }
-            case 'letsPlay':
-
-            case 'im hungry':
-
-               
-            case 'fade in':
-
-
-            case 'fade in but real':
-                black.visible = true;
-                black.alpha = 0;
-                FlxTween.tween(black, {alpha: 1}, 2.5, {ease: FlxEase.quadInOut}); 
-
-            case 'cut to black':
-
-                game.triggerEventNote('Obituary','static','');
-
-            case 'zoom out':
-
-            case 'static':
-
-
-            case 'evil':
-                game.camHUD.flash(0xFFFF0000, 0.5);
-                modManager.setValue('drunk',0.2);
-                if (!ClientPrefs.data.lowQuality) {
-                    addShader(heatShader);
-                }
-
-                fuckassOverlay.visible = true;
-            case 'ow':
-                game.boyfriend.stunned = true;
-                game.boyfriend.playAnim('hurt');
-                if (game.health > 1) {
-                    game.health = 1;
-                }
-                else {
-                    game.health = 0.1;
-                }
-   
-                game.triggerEventNote('Add Camera Zoom','0.09','');
-                game.camHUD.shake(0.025,0.25);
-                FlxG.sound.play(Paths.sound('ow'),0.5);*/
+function fadeinreal(){
+    black.visible = true;
+    black.alpha = 0;
+    FlxTween.tween(black, {alpha: 1}, 2.5, {ease: FlxEase.quadInOut}); 
+}
