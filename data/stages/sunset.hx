@@ -131,7 +131,7 @@ function cutsceneDone(){
 
 
 
-function generateSubs(text:String,length:Float) { //timer is stupid >:( It No Work
+function generateSubs(text:String) { //timer is stupid >:( It No Work
     subtitleText.visible = true;
     subtitleText.text = text;
     subtitleText.updateHitbox();
