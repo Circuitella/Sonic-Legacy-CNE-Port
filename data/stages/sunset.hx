@@ -157,9 +157,18 @@ function create(){
     //cutscene.video.video.onEndReached(cutsceneDone());
 
     add(cutscene);
-    //cutscene.play();
+
     remove(cutscene, true);
     insert(0, cutscene);
+
+    var cutsceneCacher = new FlxVideoSprite();
+	cutsceneCacher.load(Assets.getPath(Paths.video('cutscene-1')));
+    cutsceneCacher.camera = camOther;
+    cutsceneCacher.alpha = 0.001;
+    cutsceneCacher.play();
+    add(cutsceneCacher);
+
+
     //this tween is to ensure it since it takes more then 1 frame to zoom in
     FlxTween.tween(camGame, {zoom: 1.3},0.5, {ease: FlxEase.sineInOut});
     camGame.zoom = 1.3;
@@ -278,7 +287,7 @@ function create(){
     scarystatic.visible = false;
     add(scarystatic);
     camGame.alpha = 0;
-    camHUD.alpha = 1;
+    camHUD.alpha = 0;
 
 
 }
@@ -361,7 +370,9 @@ function begin(){
 function phase2Vis(){
     phase = 2;
     for (i in fakerBG) i.visible = false;
+    video.visible = true;
     for (i in scaryBG) i.visible = true;
+
     PlayState.SONG.meta.displayName = 'Obituary';
     var windowName = "Sonic Legacy";
     WindowUtils.winTitle = windowName;
@@ -396,6 +407,7 @@ function phase3Vis(){
     phase = 3;
 
     for (i in scaryBG) i.visible = false;
+    p3Video.visible = true;
     for (i in thirdBG) i.visible = true;
 
     remove(boyfriend, true);
@@ -470,9 +482,15 @@ function addPhase1() {
 
 function addPhase2() {
     //video sky for optimize
-
-
-
+    video = new FlxVideoSprite();
+	video.load(Assets.getPath(Paths.video('fire')), [':input-repeat=65535']);
+    video.camera = camGame;
+    video.play();
+    add(video);
+    video.scale.set(2,2);
+    video.scrollFactor.set(0.5, 0.5);
+    video.y += 100;
+    video.visible = false;
     addObject1('mountains','p1/bgFiles',0.825,[0.5,0.425],'xy',[0,-100],false,2,12);
 
     addObject1('water','p1/bgFiles2',0.825,[0.5,0.5],'xy',[0,-95],false,2,12);
@@ -532,6 +550,15 @@ function addPhase2() {
 function addPhase3() {
     var p3Offsets:Array<Float> = [100,100];
 
+    p3Video = new FlxVideoSprite();
+	p3Video.load(Assets.getPath(Paths.video('makeaGif')), [':input-repeat=65535']);
+    p3Video.camera = camGame;
+    p3Video.play();
+    p3Video.scale.set(2,2.5);
+    p3Video.y += -150;
+    p3Video.x += 100;
+    add(p3Video);
+    p3Video.visible = false;
     addObject1('henges3','p2/bgFiles',0.825,[0.8,0.8],'xy',[-50+p3Offsets[0],-120+p3Offsets[1]],false,3,12);
 
         addObject1('Smoke1','p2/smoke',0.825,[0.7,0.7],'0',[-275,-150],false,3,24);
