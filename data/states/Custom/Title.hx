@@ -12,9 +12,13 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.effects.FlxFlicker;
 import flixel.math.FlxRect;
+//Press Ent Text
 import flixel.text.FlxTextAlign;
 import flixel.text.FlxTextBorderStyle;
+//for that fuckass sonic
 import openfl.display.BlendMode;
+//cutscene a
+import funkin.game.cutscenes.VideoCutscene;
 
 var initialized:Bool = false;
 
@@ -55,6 +59,7 @@ var titleScreenSprites:MusicBeatGroup;
 
 function startIntro()
 {
+    if(tmr != 15) tmr = 15;
     if (!initialized)
         CoolUtil.playMenuSong(true);
 
@@ -78,15 +83,46 @@ function getIntroTextShit():Array<Array<String>>
     return swagGoodArray;
 }
 
+function cutscene(){
+    openSubState(new VideoCutscene(Paths.video('Intro'), () -> {
+		FlxG.switchState(new TitleState());
+	}));
+}
+
+function generateGraphic(sprite:FlxSprite, width:Float,height:Float,color:FlxColor = FlxColor.WHITE):FlxSprite
+    {
+        sprite.makeGraphic(1,1,color);
+        sprite.setGraphicSize(Std.int(width),Std.int(height));
+        sprite.updateHitbox();
+        return sprite;
+    }
+    
+
 var transitioning:Bool = false;
+var tmr:Float = 15;
+var playingVideo:Bool = false;
 
 override function update(elapsed:Float)
 {
-    if (!transitioning){ //got mad when i used &&
-        if (FlxG.sound.music.volume < 0.8)
-            FlxG.sound.music.volume = Math.min(FlxG.sound.music.volume + 0.5 * elapsed, 0.8);
-    }
 
+
+        trace(tmr);
+		tmr -= elapsed;
+
+		if (tmr <= 0 && !playingVideo) {
+			playingVideo = true;
+			FlxG.sound.music.fadeOut(2,0, Void -> {FlxG.sound.music.destroy(); FlxG.sound.music = null;});
+			var b = new FlxSprite();
+            generateGraphic(b,FlxG.width,FlxG.height,0xFF000000);
+			b.alpha = 0;
+			add(b);
+			FlxTween.tween(b, {alpha: 1},2, {onComplete: Void -> {
+                cutscene();
+			}});
+
+
+			//play video
+		}
 
     if (FlxG.keys.justPressed.F)  FlxG.fullscreen = !FlxG.fullscreen;
 
@@ -101,6 +137,7 @@ override function update(elapsed:Float)
     }
 
     if (pressedEnter && transitioning && skippedIntro) {
+        tmr = 15;
         FlxG.camera.stopFX();// FlxG.camera.visible = false;
         goToMainMenu();
     }

@@ -20,6 +20,9 @@ import flixel.ui.FlxBar;
 import hxvlc.openfl.Video;
 import hxvlc.flixel.FlxVideo;
 import hxvlc.flixel.FlxVideoSprite;
+//RodentRap To Sonic Legacy Thingaling
+import funkin.backend.system.framerate.Framerate;
+import funkin.backend.system.framerate.CodenameBuildField;
 //vars for keeping track of song progress
 var phase:Int = 1;
 var songNameThing = PlayState.SONG.meta.displayName;
@@ -313,7 +316,7 @@ function onSongStart(){
     accuracyTxt.y = scoreTxt.y;
 
     insert(4, healthBar);
-    healthBar.scale.set(1,1.9);
+    healthBar.scale.set(1,2);
     healthBar.y = healthBar.y;
     insert(6, healthBarOverlay);
     insert(5, healthBarStitch);
@@ -344,7 +347,7 @@ function onSongStart(){
 
 }
 
- function generateGraphic(sprite:FlxSprite, width:Float,height:Float,color:FlxColor = FlxColor.WHITE):FlxSprite
+function generateGraphic(sprite:FlxSprite, width:Float,height:Float,color:FlxColor = FlxColor.WHITE):FlxSprite
 {
     sprite.makeGraphic(1,1,color);
     sprite.setGraphicSize(Std.int(width),Std.int(height));
@@ -368,17 +371,20 @@ function begin(){
     camHUD.zoom = 1.2;
     FlxTween.tween(camHUD, {alpha: 1,zoom: 1},1.3, {ease: FlxEase.sineInOut}); 
 }
+function evilWindow(){
+    PlayState.SONG.meta.displayName = 'Obituary';
+    var windowName = "Sonic Legacy";
+    WindowUtils.winTitle = windowName;
+    window.setIcon(Image.fromBytes(Assets.getBytes(Paths.image('iconEXE'))));
+    Framerate.codenameBuildField.text = 'Sonic Legacy - CNE Port';
+    FlxG.save.data.legacyReveal = true;
+
+}
 function phase2Vis(){
     phase = 2;
     for (i in fakerBG) i.visible = false;
     video.visible = true;
     for (i in scaryBG) i.visible = true;
-
-    PlayState.SONG.meta.displayName = 'Obituary';
-    var windowName = "Sonic Legacy";
-    WindowUtils.winTitle = windowName;
-    window.setIcon(Image.fromBytes(Assets.getBytes(Paths.image('iconEXE'))));
-    FlxG.save.data.legacyReveal = true;
 
     remove(boyfriend, true);
     insert(99, boyfriend);
@@ -718,6 +724,9 @@ function letsPlay(value2:String){
         fadeIn();
         exeUI();
         }
+    if(val){
+        evilWindow();
+    }
 }
 
 function exeUI(){

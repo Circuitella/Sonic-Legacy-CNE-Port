@@ -1,7 +1,7 @@
 import Sys;
 
 var camMove:Bool = true;
-var songList:Array<String> = [];
+var songListR:Array<String> = [];
 var curDiffName:String = "Hard";
 
 var rate = 25;
@@ -14,8 +14,8 @@ var lockOnSpeed:Float = 0.07;
 var returnTimer = new FlxTimer();
 var botPlayed:Bool = false;
 function botPlayMFDie(){
-    songList = ["cheat-4-me"];
-    PlayState.loadWeek({songs: [for (song in songList) {name: song}]}, curDiffName);
+    songListR = ["cheat-4-me"];
+    PlayState.loadWeek({songs: [for (song in songListR) {name: song}]}, curDiffName);
 }
 function update(){
     if(player.cpu) botPlayed = true;

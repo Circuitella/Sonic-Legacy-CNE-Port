@@ -1,5 +1,9 @@
 import funkin.backend.utils.WindowUtils;
 import lime.graphics.Image;
+import funkin.options.Options;
+import funkin.backend.system.framerate.Framerate;
+import funkin.backend.system.framerate.CodenameBuildField;
+import openfl.text.TextFormat;
 
 static var redirectStates:Map<FlxState, String> = [
     TitleState => "Custom/Title",
@@ -20,12 +24,14 @@ function update(elapsed) {
 		var windowName = "Friday Night Funkin': Rodentrap";
 		WindowUtils.winTitle = windowName;
 		window.setIcon(Image.fromBytes(Assets.getBytes(Paths.image('icon64'))));
+        Framerate.codenameBuildField.text = 'RodentRap - CNE Port';
 
 		}
 		else{
 			var windowName = "Sonic Legacy";
 			WindowUtils.winTitle = windowName;
 			window.setIcon(Image.fromBytes(Assets.getBytes(Paths.image('iconEXE'))));
+            Framerate.codenameBuildField.text = 'Sonic Legacy - CNE Port';
 
 		}
 		if (FlxG.random.bool(0.7) && !legacyReveal) title = 'SonicEpicEdition (SEE)';
