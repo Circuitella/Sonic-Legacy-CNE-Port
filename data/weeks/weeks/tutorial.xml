@@ -1,4 +1,5 @@
 <!DOCTYPE codename-engine-week>
-<week name="" chars="none,bf,gf" sprite="tutorial">
-	<song>Tutorial</song>
+<week name="" chars="sonic,bf,gf" sprite="sonic">
+	<song>2Torial</song>
+	<song>Free-4-Me</song>
 </week>
