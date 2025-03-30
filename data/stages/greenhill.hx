@@ -62,7 +62,6 @@ function postCreate(){
     healthBar.scale.set(1,2);
     healthBar.y = healthBar.y;
     insert(6, healthBarOverlay);
-    insert(5, healthBarStitch);
     insert(99, iconP1);
     insert(99, iconP2);
     insert(100, scoreTxt);
