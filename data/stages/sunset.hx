@@ -193,7 +193,8 @@ function create(){
     generateGraphic(black,FlxG.width,FlxG.height,0xFF000000);
     black.cameras = [camOther];
     add(black);
-
+    remove(black, true);
+    insert(0, black);
     playText = new Alphabet(0,0,'Do you want to play with me?',true, false, 0.0, 0.7);
     add(playText);
     playText.screenCenter();
@@ -405,7 +406,8 @@ function phase2Vis(){
 var evil:Bool = false;
 function phase3Vis(){
     phase = 3;
-
+    defaultCamZoom = 1.75;
+    //black.alpha = 0.1;
     for (i in scaryBG) i.visible = false;
     p3Video.visible = true;
     for (i in thirdBG) i.visible = true;
@@ -814,18 +816,26 @@ function toBlack(){
 function scarystatic(){
     scarystatic.visible = true;
     scarystatic.alpha = FlxG.random.float(0.125, 1.0);
-    new FlxTimer().start(0.25, function(shit:Float){
+    new FlxTimer().start(0.25, function(){
         scarystatic.visible = false;
     });
 }
 
+function onNoteHit(event){
+    if (event.note.noteType == "Alt Animation")
+        event.animSuffix = "-alt"; //YOOOOOOOOO
+    if (event.note.noteType == "No Animation") event.animSuffix = "-the-sexy-alt"; //2nd best line ever i think idk
+} 
+
+
+
 function zoomOut(){
+    camZooming = false;
     defaultCamZoom = 1.75;
-    var time:Float = 6;
-    FlxTween.num(defaultCamZoom, 0.65, time, {ease: FlxEase.quadOut, update: function(v:FlxTween){
-        defaultCamZoom = v.value;
+    FlxTween.tween(FlxG.camera, {zoom: 0.65}, 6, {ease: FlxEase.quadOut, onComplete: function(v:FlxTween){
+        defaultCamZoom = 0.65;
     }});
-    FlxTween.tween(black, {alpha: 0}, time, {ease: FlxEase.quadInOut, onComplete: function(v:FlxTween){
+    FlxTween.tween(black, {alpha: 0}, 6, {ease: FlxEase.quadInOut, onComplete: function(v:FlxTween){
         black.visible = false;
     }});
 
@@ -834,7 +844,7 @@ function zoomOut(){
     for(s in strumLines){
         for(note in cpuStrums.members)
             {
-              FlxTween.tween(note, {alpha: 1}, 0.01);
+              FlxTween.tween(note, {alpha: 0}, 0.01);
             }
     }
 }
@@ -854,15 +864,14 @@ function endZoom(){
 
                 FlxTween.tween(camHUD, {alpha: 0},0.3, {ease: FlxEase.sineOut});
                 FlxTween.tween(camOther, {zoom: 1},1.25, {ease: FlxEase.sineOut});
-
+                camZooming = false;
                 camFollow.x = dad.getGraphicMidpoint().x + ((boyfriend.getGraphicMidpoint().x - dad.getGraphicMidpoint().x)/2);
                 camZoomingInterval = 11111111;
                 FlxTween.cancelTweensOf(camGame);
-                FlxTween.tween(camGame, {zoom: 0.36},1.25, {ease: FlxEase.sineOut, update: function (f:FlxTween) {
-                    defaultCamZoom = 0.36;
-                    camGame.zoom = 0.36;
+                FlxTween.tween(FlxG.camera, {zoom: 0.36}, 1.25, {ease: FlxEase.sineOut, onComplete: function(v:FlxTween){
                     camZooming = false;
-                    trace(camGame.zoom);
+                    defaultCamZoom = 0.36;
+                    trace(camGame.zoom);                
                 }});
                 camZooming = false;
                 FlxTween.tween(fuckassOverlay, {alpha: 0},0.5, {ease: FlxEase.sineOut});
