@@ -1,0 +1,1 @@
+function create() FlxG.sound.playMusic(Paths.music('OptionsMenu'), 1, true);

@@ -142,6 +142,8 @@ function generateSubs(text:String) { //timer is stupid >:( It No Work
 }
 
 function create(){
+    PlayState.instance.introLength = 0;
+    PlayState.instance.camGame.alpha = 0;   
     subtitleText = new FlxText(0,0,FlxG.width,'',32);
     subtitleText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, FlxTextAlign.CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
     add(subtitleText);
@@ -290,16 +292,28 @@ function create(){
     scarystatic.camera = camOther;
     scarystatic.visible = false;
     add(scarystatic);
-    camGame.alpha = 0;
-    camHUD.alpha = 0;
-
-
 }
 
 function onSubstateOpen() if (cutscene != null) cutscene.pause();
 function onSubstateClose() if (cutscene != null) cutscene.resume();
 function onFocus() if (paused) onSubstateOpen(); // lil fix for when the window regains focus
 
+function startZoom(){
+    camZooming = false; //usually off, but just incase i guess
+    var x = 260;
+    var y = 616;
+    camFollow.setPosition(x,y);
+    //defaultCamZoom = 1.25;
+    camzoom = 1.25;
+    dad.visible = false;
+    introAnim.animation.play('intro', false);
+    //next 2 are for if you were in the middle of the song, idk if it would break but just makin sure
+    camHUD.alpha = 0;
+    camGame.alpha = 1;
+
+    camFollow.y = 616; //just gotta give it a double check trust
+
+}
 
 function onSongStart(){
     remove(iconP1, true);
@@ -314,7 +328,6 @@ function onSongStart(){
     scoreTxt.y = scoreTxt.y + 20;
     missesTxt.y = scoreTxt.y;
     accuracyTxt.y = scoreTxt.y;
-
     insert(4, healthBar);
     healthBar.scale.set(1,2);
     healthBar.y = healthBar.y;
@@ -336,17 +349,8 @@ function onSongStart(){
     remove(spr, true);
     insert(101, spr);
     FlxTween.tween(spr, {alpha: 0.3},1.2);
-    camHUD.alpha = 0;
-    var x = 260;
-    var y = 620;
-    camFollow.setPosition(x,y);
-    camzoom = 1.25;
-    dad.visible = false;
-    introAnim.animation.play('intro', false);
-    camGame.alpha = 1;
-
 }
-
+function postCreate()    startZoom();
 function generateGraphic(sprite:FlxSprite, width:Float,height:Float,color:FlxColor = FlxColor.WHITE):FlxSprite
 {
     sprite.makeGraphic(1,1,color);
@@ -354,7 +358,12 @@ function generateGraphic(sprite:FlxSprite, width:Float,height:Float,color:FlxCol
     sprite.updateHitbox();
     return sprite;
 }
-
+function stepHit(curStep){
+    switch(curStep){
+        case 1:
+            startZoom();
+    }
+}
 function lookRight(){
     //FlxTween.tween(FlxG.camera.scroll, {x: 500},0.7, {ease: FlxEase.sineInOut});
     FlxTween.tween(camGame, {zoom: 1},0.7, {ease: FlxEase.sineInOut});
@@ -376,7 +385,7 @@ function evilWindow(){
     var windowName = "Sonic Legacy";
     WindowUtils.winTitle = windowName;
     window.setIcon(Image.fromBytes(Assets.getBytes(Paths.image('iconEXE'))));
-    Framerate.codenameBuildField.text = 'Sonic Legacy - CNE Port';
+    Framerate.codenameBuildField.text = 'Codename Engine '+ Main.releaseCycle + '\nCommit ' + GitCommitMacro.commitNumber + ' (' + GitCommitMacro.commitHash + ')' + '\nSonic Legacy - CNE Port';
     FlxG.save.data.legacyReveal = true;
 
 }
@@ -428,7 +437,6 @@ function phase3Vis(){
         e.alpha = 0;
       }
 }
-
 function onPostStrumCreation(event:StrumCreationEvent){
     if(phase == 3){
     for (i in [0]) {
@@ -552,7 +560,6 @@ function addPhase2() {
     setScale(rabbithead,0.75);
     rabbithead.antialiasing = true;
     insert(155, rabbitHead);
-    scaryBG.push(rabbithead);
 }
 
 function addPhase3() {

@@ -96,17 +96,44 @@ function generateGraphic(sprite:FlxSprite, width:Float,height:Float,color:FlxCol
         sprite.updateHitbox();
         return sprite;
     }
-    
+var transitioning:Bool = false;
+var wiggle:Bool = false;
+var wiggleDistance:Float = 0;
+var weewoo:Float = 0;
+var pressSine:Float = 80;
+var allowedStartFade:Bool = false;    
 
 var transitioning:Bool = false;
 var tmr:Float = 15;
 var playingVideo:Bool = false;
+var evil:Bool = FlxG.save.data.legacyReveal;
+var allowedToEnter:Bool = false;
+var handTop:FlxSprite;
+var handBot:FlxSprite;
+var startGame:FlxSprite;
+var logo:FlxSprite;
 
 override function update(elapsed:Float)
 {
+    if(evil){
+        weewoo += elapsed * 2.8;
+        FlxG.camera.scroll.y = 50 + Math.cos(weewoo) * 10;
 
-
-        trace(tmr);
+        if (wiggle){
+            doWiggle(handTop, logo.x + 97.6, logo.y + 34, weewoo, wiggleDistance);
+            doWiggle(handBot, logo.x + 1069.75, logo.y + 639, weewoo, wiggleDistance, true);
+        } else weewoo = 0;
+        if (!transitioning){
+            if (wiggle && allowedStartFade){
+                pressSine += 80 * elapsed;
+                startGame.alpha = 1 - Math.sin((Math.PI * pressSine) / 80);
+            }
+        } else {
+            startGame.animation.play("press",true);
+            startGame.alpha = 1;
+        }
+    }
+    if(!evil){
 		tmr -= elapsed;
 
 		if (tmr <= 0 && !playingVideo) {
@@ -123,7 +150,7 @@ override function update(elapsed:Float)
 
 			//play video
 		}
-
+    }
     if (FlxG.keys.justPressed.F)  FlxG.fullscreen = !FlxG.fullscreen;
 
     var pressedEnter:Bool = FlxG.keys.justPressed.ENTER;
@@ -136,18 +163,21 @@ override function update(elapsed:Float)
             pressedEnter = true;
     }
 
-    if (pressedEnter && transitioning && skippedIntro) {
+    if (pressedEnter && transitioning && skippedIntro && !evil) {
         tmr = 15;
         FlxG.camera.stopFX();// FlxG.camera.visible = false;
         goToMainMenu();
     }
+    if(pressedEnter && !transitioning && skippedIntro && evil){
+        forceComplete();
+    }
 
-    if (pressedEnter && !transitioning && skippedIntro)
+    if (pressedEnter && !transitioning && skippedIntro && !evil)
     {
         pressEnter();
     }
 
-    if (pressedEnter && !skippedIntro)
+    if (pressedEnter && !skippedIntro && !evil)
         skipIntro();
 }
 
@@ -167,34 +197,6 @@ function goToMainMenu() {
     FlxG.switchState(new MainMenuState());
 }
 
-function createCoolText(textArray:Array<String>)
-{
-    for (i=>text in textArray)
-    {
-        if (text == "" || text == null) continue;
-        var money:Alphabet = new Alphabet(0, (i * 60) + 200, text, true, false);
-        money.screenCenter(X);
-        textGroup.add(money);
-    }
-}
-
-function addMoreText(text:String)
-{
-    var coolText:Alphabet = new Alphabet(0, (textGroup.length * 60) + 200, text, true, false);
-    coolText.screenCenter(X);
-    textGroup.add(coolText);
-}
-
-function deleteCoolText()
-{
-    while (textGroup.members.length > 0) {
-        textGroup.members[0].destroy();
-        textGroup.remove(textGroup.members[0], true);
-    }
-}
-
-
-
 var skippedIntro:Bool = false;
 
 function skipIntro():Void
@@ -208,6 +210,7 @@ function skipIntro():Void
 
 function beatHit(curBeat:Int)
 	{		
+        if(!evil){
 		if (curBeat % 4 == 0)
 			{
 
@@ -230,8 +233,11 @@ function beatHit(curBeat:Int)
 					}
 			}
         }
+    }
 
 function titleAssets(){
+
+    if(!evil){
     var bg = new FlxBackdrop(Paths.image('userinterface/title/city'));
     bg.velocity.x = 100;
     bg.antialiasing = true;
@@ -275,7 +281,99 @@ function titleAssets(){
 
     blackScreen = new FlxSprite((FlxG.width * -1) / 2, (FlxG.height * -1)).makeGraphic(Std.int(FlxG.width * 2), Std.int(FlxG.height * 2), FlxColor.BLACK);
     add(blackScreen);
+    }
+    if(evil){
+        FlxG.camera.zoom = 0.35;
+        FlxG.mouse.visible = false;
 
+        FlxG.sound.playMusic(Paths.music('Legacytrueintro'), 1, true);
+
+        FlxG.mouse.visible = false;
+        
+        handTop = new FlxSprite();
+        handTop.loadGraphic(Paths.image("userinterface/title/handTop"));
+        handTop.scrollFactor.set(0.5,0.5);
+        add(handTop);
+
+        handBot = new FlxSprite();
+        handBot.loadGraphic(Paths.image("userinterface/title/handBot"));
+        handBot.scrollFactor.set(0.5,0.5);
+        add(handBot);
+
+        logo = new FlxSprite();
+        logo.loadGraphic(Paths.image("userinterface/title/logo"));
+        logo.updateHitbox();
+        logo.screenCenter(FlxAxes.XY);
+        logo.alpha = 0;
+        add(logo);
+
+        startGame = new FlxSprite();
+        startGame.frames = Paths.getSparrowAtlas('userinterface/title/startGame');
+        startGame.animation.addByIndices("idle", "startGame", [0], "", 1, false);
+        startGame.animation.addByIndices("press", "startGame", [1], "", 1, true);
+        startGame.animation.play("idle");
+        startGame.scrollFactor.set(1.5,2);
+        add(startGame);
+
+
+        for (g in [handTop,handBot,startGame]){
+            g.updateHitbox();
+            g.screenCenter(FlxAxes.XY);
+            g.scale.set(0,0);
+            g.alpha = 0;
+            FlxTween.tween(g.scale, {x: 1, y:1}, 1, {ease: FlxEase.quintInOut});
+        }
+
+        FlxTween.tween(logo, {alpha: 1}, 0.5, {ease: FlxEase.quintInOut});
+        
+        startGame.y = logo.y+1012.9;
+
+        new FlxTimer().start(0.2, function(start:FlxTimer){
+                FlxTween.tween(FlxG.camera, {zoom: 0.4}, 2, {ease: FlxEase.sineOut});
+
+                FlxTween.tween(handTop,{alpha:1},1,{ease: FlxEase.sineInOut,startDelay: 1});
+                FlxTween.tween(handBot,{alpha:1},1,{ease: FlxEase.sineInOut,startDelay: 1});
+    
+                FlxTween.tween(startGame, {y: logo.y + 1237.75}, 2, {ease: FlxEase.quintInOut});
+                FlxTween.tween(handTop, {x: logo.x + 97.6, y: logo.y + 34}, 2, {ease: FlxEase.quintInOut});
+                FlxTween.tween(handBot, {x: logo.x + 1069.75, y: logo.y + 639}, 2, {ease: FlxEase.quintInOut});
+                new FlxTimer().start(1.6,Void->{
+                    wiggle = true;   
+                    //FlxTween.tween(this, {wiggleDistance: 15}, 1, {ease: FlxEase.quadInOut});                    
+                    //the one above crashes game, all it does is over the course of 1 second tween wiggleDistance to 15
+                    //luckily theres a dedicated function for tweening numbers in flixel lol
+                    FlxTween.num(wiggleDistance, 15, 1, {ease: FlxEase.quadInOut, onUpdate: (val:Float) -> wiggleDistance = val.value});
+                    FlxTween.tween(startGame,{alpha:1},1,{ease: FlxEase.sineInOut});
+                    new FlxTimer().start(0.8,Void->{allowedStartFade=true; allowedToEnter = true;});
+    
+                });
+                
+                
+            });
+        
+        // FlxTransitionableState.defaultTransIn = FadeTransition;
+        // FlxTransitionableState.defaultTransOut = FadeTransition;
+    }
+}
+function forceComplete() {
+    allowedToEnter = false;
+    transitioning = true;
+    FlxFlicker.flicker(startGame, 4, 0.06, true,true);
+    FlxG.sound.play(Paths.sound('VERY_intro_sound'));
+
+    new FlxTimer().start(3, function(tmr:FlxTimer){
+        FlxG.sound.music.fadeIn(1.5, 0, 0);
+            FlxG.camera.fade(0xFF000000, 1, false, () -> {
+                new FlxTimer().start(1, function(tmr:FlxTimer){
+                    goToMainMenu();
+                });
+            });
+        });
+}
+function doWiggle(spr:FlxSprite, x:Float, y:Float, weewwoo:Float, mul:Float, reverse:Bool = false){
+    if (reverse) spr.setPosition(x - Math.sin(weewwoo) * mul, y - Math.cos(weewwoo) * mul);
+    else spr.setPosition(x + Math.sin(weewwoo) * mul, y + Math.cos(weewwoo) * mul);
+    spr.angle = Math.sin(weewwoo) * (mul/7.5);
 }
 /*
 function beatHit(curBeat:Int)
